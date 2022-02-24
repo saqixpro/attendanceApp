@@ -1,91 +1,99 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { FlatList, SafeAreaView, Text, View} from 'react-native'
-import { Dashboard } from '../../components';
+import DropdownAlert from 'react-native-dropdownalert';
+import api from '../../api';
+import { AppLoading, Dashboard } from '../../components';
+import { height } from '../../constants';
 import { Container, Separator } from './styles';
-
 const DashboardScreen = () => {
-    const [students, setStudents] = useState([
-        {
-            id: 1,
-            name: 'John',
-            status: 0
-        },
-        {
-            id: 2,
-            name: 'Smeed',
-            status: 1,
-            warning: "Something Went Wrong"
-        },
-        {
-            id: 3,
-            name: 'Rahul',
-            status: 2,
-            parentInformed: "25-11-2021 18:02:35"
-        },
-        {
-            id: 4,
-            name: 'John',
-            status: 0
-        },
-        {
-            id: 8,
-            name: 'Smeed',
-            status: 1,
-            warning: "Something Went Wrong"
-        },
-        {
-            id: 9,
-            name: 'Rahul',
-            status: 2,
-            parentInformed: "25-11-2021 18:02:35"
-        },
-        {
-            id: 11,
-            name: 'John',
-            status: 0
-        },
-        {
-            id: 12,
-            name: 'Smeed',
-            status: 1,
-            warning: "Something Went Wrong"
-        },
-        {
-            id: 18,
-            name: 'John',
-            status: 0
-        },
-        {
-            id: 19,
-            name: 'Smeed',
-            status: 1,
-            warning: "Something Went Wrong"
-        },
-        {
-            id: 20,
-            name: 'Rahul',
-            status: 2,
-            parentInformed: "25-11-2021 18:02:35"
-        },
-    ])
+    const dropdownRef = useRef(null);
+    const [loading, setLoading] = useState(true);
+    const [students, setStudents] = useState([])
+    const [sections, setSections] = useState([]);
+    const [selectedSection, setSelectedSection] = useState();
+    const [selectedDate, setSelectedDate] = useState();
 
     const updateStatus = (id, status) => {
-        const updatedStudent = students.find(item => item.id == id);
-        updatedStudent.status = status;
+        const updatedStudent = students?.lstStudents.find(item => item.studentId == id);
+        updatedStudent.attendance = status;
+        MarkAttendance(id, status);
         setStudents(prev => {
-            return prev.map(student => student.id == id ? updatedStudent : student);
+            return {...prev, lstStudents: prev.lstStudents.map(student => student.studentId == id ? updatedStudent : student)}
         })
     }
 
-    return (
+    const showWarning = (warning) => {
+        dropdownRef.current.alertWithType('error', '', warning);
+    }
+
+    const MarkAttendance = async (studentId, attendance) => {
+        const result =  await api.markStudent(studentId, selectedDate, attendance);
+        dropdownRef.current.alertWithType('success', '', result.SvcMsg);
+    }
+
+    const saveAttendance = async () => {
+        const result = await api.saveAttendance(selectedDate, selectedSection.sectionId);
+        dropdownRef.current.alertWithType(result.SvcStatus == "Success" ? 'success' : 'error', '', result.SvcMsg);
+    }
+
+    const selectAllItems = async () => {
+
+        for(let i = 0; i < students.lstStudents.length; i++){
+            const student = students.lstStudents[i];
+            const result = await api.markStudent(student.studentId, selectedDate, "P");
+        }
+
+        setStudents(prev => {
+            dropdownRef.current.alertWithType("success", "", "All students have been marked present")
+            return {...prev, lstStudents: prev.lstStudents.map(student => ({...student, attendance: "P"}))}
+        })
+    }
+
+    const fetchSectionsAsync = async () => {
+       try {
+        const data = await api.getSections();
+        setSections(data.lstClsSection);
+       } catch(error){
+           console.log(error);
+       } finally {
+           setLoading(false);
+       }
+    }
+
+    const fetchStudentsAsync = async () => {
+        if(!selectedSection) return;
+
+       try {
+        const data = await api.getStudents(selectedSection.sectionId, selectedDate);
+        setStudents(data.student);
+        console.log(data.student);
+       } catch(error){
+           console.log(error);
+       } finally {
+           setLoading(false);
+       }
+    }
+
+    useEffect(() => {
+        fetchSectionsAsync();
+    }, [])
+
+    useEffect(() => {
+        fetchStudentsAsync();
+    }, [selectedDate, selectedSection])
+
+    return loading ? <AppLoading /> : (
            <Container>
                <SafeAreaView />
-              <Dashboard.Header />
-              <FlatList data={students} ItemSeparatorComponent={() => <Separator />} ListHeaderComponent={Dashboard.ListHeader} renderItem={({item, index}) => (
-                  <Dashboard.ListItem item={item} updateStatus={(status) => updateStatus(item.id, status)} />
+              <Dashboard.Header students={students} selectedClass={selectedSection} setSelectedClass={setSelectedSection} selectedDate={selectedDate} setSelectedDate={setSelectedDate} sections={sections} />
+              <FlatList data={students?.lstStudents} ListEmptyComponent={() => <View style={{flex: 1, minHeight: height / 2, justifyContent: 'center', alignItems: 'center'}}>
+                  <Text style={{fontSize: 18}}>No Data Available</Text>
+              </View>} ItemSeparatorComponent={() => <Separator />} ListHeaderComponent={() => <Dashboard.ListHeader saveAttendance={saveAttendance} selectAllItems={selectAllItems} />} renderItem={({item, index}) => (
+                  <Dashboard.ListItem showWarning={showWarning} item={item} updateStatus={(status) => updateStatus(item.studentId, status)} />
               )}>
 
               </FlatList>
+              <DropdownAlert ref={dropdownRef} />
            </Container>
     )
 }

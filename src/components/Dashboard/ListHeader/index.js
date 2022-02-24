@@ -1,7 +1,8 @@
 import React from 'react'
-import { Attendance, Text, Inform, Button, Container, Name, Serial } from './styles'
+import { colors } from '../../../constants';
+import { Attendance, Text, Inform, Button, Container, Name, Serial, Btn } from './styles'
 
-const ListHeader = () => {
+const ListHeader = ({selectAllItems, saveAttendance}) => {
     return (
         <Container>
             <Serial>
@@ -11,7 +12,7 @@ const ListHeader = () => {
                 <Text>Name</Text>
             </Name>
             <Attendance>
-                <Button>
+                <Button onPress={selectAllItems}>
                     <Text>P</Text>
                 </Button>
             </Attendance>
@@ -21,7 +22,11 @@ const ListHeader = () => {
             <Attendance>
                 <Text>-</Text>
             </Attendance>
-            <Inform></Inform>
+            <Inform>
+                <Btn onPress={saveAttendance}>
+                    <Text color={colors.primary}>Save</Text>
+                </Btn>
+            </Inform>
         </Container>
     )
 }

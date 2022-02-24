@@ -1,3 +1,4 @@
 import DashboardScreen from './Dashboard'
-
-export {DashboardScreen}
+import LoginScreen from './Login'
+import ForgotPassowrd from './Forgot'
+export {DashboardScreen, LoginScreen, ForgotPassowrd}

@@ -1,10 +1,13 @@
 import { TouchableOpacity } from 'react-native'
+import { Surface } from 'react-native-paper'
 import styled from 'styled-components/native'
 import { colors, height, width } from '../../../constants'
 
-export const Container = styled.View`
-    width: ${width / 1.05}px;
-    height: ${height / 10}px;
+export const Container = styled(Surface)`
+    width: ${width}px;
+    height: ${height / 9}px;
+    padding-left: 2%;
+    padding-right: 2%;
     flex-direction: row;
 `
 
@@ -12,6 +15,14 @@ export const ModalContainer = styled.View`
     flex: 1;
     justify-content: center;
     align-items: center;
+    background-color: rgba(0,0,0,0.3);
+`
+
+export const CalendarContainer = styled.View`
+    background-color: ${colors.white};
+    padding: 10px;
+    border-radius: 10px;
+    width: ${width / 1.05}px;
 `
 
 export const LeftSection = styled.View`

@@ -32,6 +32,7 @@ export const Attendance = styled.View`
 
 export const Inform = styled.View`
     flex: 1;
+    justify-content: center;
 `
 
 export const Text = styled.Text`
@@ -46,5 +47,12 @@ export const Button = styled(TouchableOpacity)`
     align-items: center;
     justify-content: center;
     background-color: ${colors.accent};
+`
+
+export const Btn = styled(TouchableOpacity)`
+    background-color: transparent;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
 `
 
