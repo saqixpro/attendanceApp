@@ -12,6 +12,8 @@ const DashboardScreen = () => {
     const [sections, setSections] = useState([]);
     const [selectedSection, setSelectedSection] = useState();
     const [selectedDate, setSelectedDate] = useState();
+    const [refreshing, setRefreshing] = useState(false);
+
 
     const updateStatus = (id, status) => {
         const updatedStudent = students?.lstStudents.find(item => item.studentId == id);
@@ -24,6 +26,18 @@ const DashboardScreen = () => {
 
     const showWarning = (warning) => {
         dropdownRef.current.alertWithType('error', '', warning);
+    }
+
+    const inform = async (studentId, attendance) => {
+       try {
+           setRefreshing(true);
+           const result = await api.inform(selectedDate, studentId, attendance);
+           dropdownRef.current.alertWithType(result.SvcStatus == 'Success' ? 'success' : 'error', '', result.SvcMsg);
+       } catch(error){
+           console.log(error);
+       } finally {
+           setRefreshing(false);
+       }
     }
 
     const MarkAttendance = async (studentId, attendance) => {
@@ -80,7 +94,7 @@ const DashboardScreen = () => {
 
     useEffect(() => {
         fetchStudentsAsync();
-    }, [selectedDate, selectedSection])
+    }, [selectedDate, selectedSection, loading])
 
     return loading ? <AppLoading /> : (
            <Container>
@@ -89,7 +103,7 @@ const DashboardScreen = () => {
               <FlatList data={students?.lstStudents} ListEmptyComponent={() => <View style={{flex: 1, minHeight: height / 2, justifyContent: 'center', alignItems: 'center'}}>
                   <Text style={{fontSize: 18}}>No Data Available</Text>
               </View>} ItemSeparatorComponent={() => <Separator />} ListHeaderComponent={() => <Dashboard.ListHeader saveAttendance={saveAttendance} selectAllItems={selectAllItems} />} renderItem={({item, index}) => (
-                  <Dashboard.ListItem showWarning={showWarning} item={item} updateStatus={(status) => updateStatus(item.studentId, status)} />
+                  <Dashboard.ListItem showWarning={showWarning} inform={inform} item={item} updateStatus={(status) => updateStatus(item.studentId, status)} />
               )}>
 
               </FlatList>

@@ -1,4 +1,4 @@
-import { TouchableOpacity } from 'react-native'
+import { Platform, TouchableOpacity } from 'react-native'
 import { Surface } from 'react-native-paper'
 import styled from 'styled-components/native'
 import { colors, height, width } from '../../../constants'
@@ -31,12 +31,12 @@ export const LeftSection = styled.View`
 `
 
 export const RightSection = styled.View`
-    flex: 1;
-    justify-content: flex-end;
+    flex: 1.5;
+    justify-content: center;
 `
 
 export const StatsContainer = styled.View`
-    height: 50%;
+    height: ${Platform.OS == 'ios' ? 60 : 70}%;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -45,12 +45,16 @@ export const StatsContainer = styled.View`
     border-top-width: 1px;
     border-bottom-width: 1px;
     border-color: ${colors.accent};
-    padding: 5px;
+    padding: 10px;
+    padding-top: 15px;
+    padding-bottom: 15px;
     border-radius: 10px;
 `   
 
 export const TotalAttendance = styled.Text`
     font-size: 22px;
+    text-align: center;
+    width: 30%;
 ` 
 
 export const AttendanceContainer = styled.View`
@@ -67,7 +71,7 @@ export const AttendanceBlock = styled.View`
 `
 
 export const Text = styled.Text`
-    font-size: ${props => props.fontSize ? props.fontSize : 16}px;
+    font-size: ${props => props.fontSize ? props.fontSize : Platform.OS =='ios' ? 16 : 14}px;
 `
 
 export const DateButton = styled(TouchableOpacity)`

@@ -35,6 +35,64 @@ export const markStudent = async (studentId, date, attendance) => {
     }
 }
 
+
+export const loginWithEmailAndPassword = async (email, password) => {
+   const uri = `${BASE_URL}/ta/staff/login`
+   try {
+        const res = await fetch(uri, {
+            method: "POST",
+            body: `eMail=${email}&password=${password}`,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+
+        const result = await res.json();
+        return result;
+
+   } catch(error){
+       console.log(error);
+   }
+}
+
+
+export const inform = async (date, studentId, attendance) => {
+    const uri = `${BASE_URL}/ta/attendance/student/inform`;
+    try {
+        const res = await fetch(uri, {
+            method: 'POST',
+            body: `dt=${date}&studentId=${studentId}&attendance=${attendance}`,
+            headers: {
+                'Content-Type': "application/x-www-form-urlencoded"
+            }
+        })
+
+        const result = await res.json();
+        return result;
+    } catch(error){
+        console.log(error);
+    }
+}
+
+export const resetPassword = async (email) => {
+    const uri = `${BASE_URL}/ta/staff/forgotPassword`
+    try {
+         const res = await fetch(uri, {
+             method: "POST",
+             body: `eMail=${email}`,
+             headers: {
+                 'Content-Type': 'application/x-www-form-urlencoded'
+             }
+         });
+ 
+         const result = await res.json();
+         return result;
+ 
+    } catch(error){
+        console.log(error);
+    }
+}
+
 export const saveAttendance = async (date, sectionId) => {
     const uri = `${BASE_URL}/ta/attendance/mark/cls`;
 

@@ -2,7 +2,7 @@ import React from 'react'
 import { colors } from '../../../constants'
 import { AttendanceButton, Container, InformButton, InformContainer, NameContainer, SerialContainer, Text, WarningButton } from './styles'
 
-const ListItem = ({item, updateStatus, showWarning}) => {
+const ListItem = ({item, inform, updateStatus, showWarning}) => {
     return (
         <Container>
             <SerialContainer>
@@ -24,7 +24,12 @@ const ListItem = ({item, updateStatus, showWarning}) => {
                 <Text center bold={item.attendance == "L"} color={item.attendance == "L" ? colors.accent : undefined}>L</Text>
             </AttendanceButton>
             <InformContainer>
-                {item.informDt !== "-" && item.informDt ? <Text center fontSize={10}>{item.informDt + " " + item.informTm}</Text> : <InformButton>
+                {item.informDt !== "-" && item.informDt ? 
+                <>
+                <Text center fontSize={10}>{item.informDt}</Text>
+                <Text center fontSize={10}>{item.informTm}</Text>  
+                </>
+                : <InformButton onPress={() => inform(item.studentId, item.attendance)}>
                     <Text center underline color={colors.primary}>inform</Text>
                 </InformButton>}
             </InformContainer>

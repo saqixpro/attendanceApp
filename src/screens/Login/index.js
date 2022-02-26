@@ -1,18 +1,40 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react'
+import React, {useState } from 'react'
 import { LOGO } from '../../assets';
-import { Login } from '../../components';
-import { colors, screens } from '../../constants';
+import { AppLoading, Login } from '../../components';
+import { actions, colors, screens } from '../../constants';
 import { Body, Button, Container, Logo, LogoContainer, MainButton, Text } from './styles'
-
+import api from '../../api'
+import { useDispatch } from 'react-redux';
 const LoginScreen = () => {
-    const navigation = useNavigation();
     const [showingForgotPassword , setShowingForgotPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const dispatch = useDispatch();
 
-    const login = () => {
-        navigation.navigate(screens.DASHBOARD_SCREEN);
+    const login = async () => {
+        try {
+            setLoading(true);
+            // const res = await api.loginWithEmailAndPassword(email, password);
+            // alert(JSON.stringify(res));
+            dispatch({type: actions.LOGIN, payload: {user: {username: 'bob'}}})
+        } catch(error){
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const forgotPassword = async () => {
+        try {
+            setLoading(true);
+            const res = await api.resetPassword(email);
+            alert(JSON.stringify(res));
+        } catch(error){
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const toggleForgotPassword = () => setShowingForgotPassword(prev => {
@@ -20,7 +42,7 @@ const LoginScreen = () => {
         return !prev;
     })
     
-    return (
+    return loading ? <AppLoading /> : (
         <Container>
             <LogoContainer>
                 <Logo source={LOGO} />
@@ -28,8 +50,8 @@ const LoginScreen = () => {
             <Body>
                {!showingForgotPassword ? (
                     <>
-                    <Login.Input placeholder="Email" />
-                    <Login.Input placeholder="Password" secureTextEntry />
+                    <Login.Input placeholder="Email" onChangeText={text => setEmail(text)} />
+                    <Login.Input placeholder="Password" secureTextEntry onChangeText={text => setPassword(text)} />
                     <Button onPress={toggleForgotPassword}>
                         <Text color={colors.primary}>Forgot Passowrd</Text>
                     </Button>
@@ -39,8 +61,8 @@ const LoginScreen = () => {
                     </>
                ) : (
                    <>
-                    <Login.Input placeholder="Email" />
-                    <MainButton>
+                    <Login.Input placeholder="Email" onChangeText={text => setEmail(text)} />
+                    <MainButton onPress={forgotPassword}>
                         <Text color={colors.white}>Reset Password</Text>
                     </MainButton>
                     <Button center onPress={toggleForgotPassword}>

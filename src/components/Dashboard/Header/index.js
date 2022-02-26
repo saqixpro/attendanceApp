@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { AttendanceBlock, Text, AttendanceContainer, Container, LeftSection, RightSection, StatsContainer, TotalAttendance, DateButton, ModalContainer, CalendarContainer } from './styles'
 import CalendarPicker from 'react-native-calendar-picker'
 import moment from 'moment';
-import { Modal, View } from 'react-native';
+import { Modal } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 const Header = ({sections, students, selectedClass, setSelectedClass, selectedDate, setSelectedDate}) => {   
     const [dateModalVisible, setDateModalVisible] = useState(false);
     const [classModalVisible, setClassModalVisible] = useState(false);
+    const [isToday, setIsToday] = useState(false);
+    const [formattedDate, setFormattedDate] = useState();
 
     useEffect(() => {
         if(!selectedDate){
@@ -19,6 +21,22 @@ const Header = ({sections, students, selectedClass, setSelectedClass, selectedDa
         }
     }, [])
 
+    useEffect(() => {
+            if(selectedDate){
+                const check = moment(new Date(), 'YYYY-MMMM-DD');
+                const month = check.format('M');
+                const displayMonth = check.format('MMM');
+                const day   = check.format('D');
+                const year  = check.format('YYYY');
+                const today = `${day}-${month}-${year}`;
+                setIsToday(today == selectedDate);
+
+                const formattedArr = selectedDate.split('-');
+                const formatted = `${formattedArr[0]}-${displayMonth}`;
+                setFormattedDate(formatted);
+            }
+
+    } ,[selectedDate])
 
     return (
         <Container>
@@ -27,7 +45,7 @@ const Header = ({sections, students, selectedClass, setSelectedClass, selectedDa
                     <Text fontSize={18}>Class : {selectedClass?.section || "Select a Class"}</Text>
                 </DateButton>
                 <DateButton onPress={() => setDateModalVisible(true)}>
-                    <Text fontSize={18}>Date : {selectedDate}</Text>
+                    <Text fontSize={18}>Date : {isToday ? "Today" : formattedDate}</Text>
                 </DateButton>
             </LeftSection>
             <RightSection>

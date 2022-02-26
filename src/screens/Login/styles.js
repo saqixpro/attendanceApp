@@ -1,4 +1,4 @@
-import { Image, TouchableOpacity } from "react-native";
+import { Image, Platform, TouchableOpacity } from "react-native";
 import { Surface } from "react-native-paper";
 import styled from "styled-components/native";
 import { colors, width } from "../../constants";
@@ -22,11 +22,11 @@ export const Logo = styled(Image)`
 `
 
 export const Body = styled.View`
-    flex: 2;
+    flex: ${Platform.OS == 'ios' ? 2 : 1.5};
 `
 
 export const Text = styled.Text`
-    font-size: 16px;
+    font-size: ${Platform.OS == 'ios' ? 16 : 14}px;
     color: ${props => props.color ? props.color : colors.black};
 `
 
