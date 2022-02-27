@@ -66,7 +66,7 @@ const DashboardScreen = () => {
     const fetchSectionsAsync = async () => {
        try {
         const data = await api.getSections();
-        setSections(data.lstClsSection);
+        if(data.SvcStatus !== 'Failure')  setSections(data.lstClsSection);
        } catch(error){
            console.log(error);
        } finally {

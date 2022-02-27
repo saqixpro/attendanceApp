@@ -2,9 +2,9 @@ import React from 'react'
 import { colors } from '../../../constants';
 import { Container, TextInput } from './styles'
 
-const Input = ({placeholder, secureTextEntry}) => (
+const Input = ({placeholder, onChangeText, secureTextEntry}) => (
     <Container>
-        <TextInput placeholderTextColor={colors.darkGrey} placeholder={placeholder} secureTextEntry={secureTextEntry} />
+        <TextInput placeholderTextColor={colors.darkGrey} onChangeText={onChangeText} placeholder={placeholder} secureTextEntry={secureTextEntry} />
     </Container>
 )
 

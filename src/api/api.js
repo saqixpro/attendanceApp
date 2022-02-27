@@ -1,4 +1,5 @@
 const BASE_URL = "http://13.127.102.34:8082"
+const AUTH_URL = 'http://13.126.35.191:8180'
 
 export const getSections = async (sectionId, date) => {
     try {
@@ -37,14 +38,15 @@ export const markStudent = async (studentId, date, attendance) => {
 
 
 export const loginWithEmailAndPassword = async (email, password) => {
-   const uri = `${BASE_URL}/ta/staff/login`
+    console.log(`email:${email} and password ${password}`);
+   const uri = `${AUTH_URL}/sms/school/login`
    try {
         const res = await fetch(uri, {
-            method: "POST",
-            body: `eMail=${email}&password=${password}`,
+            method: "post",
+            body: `email=${email}&password=${password}`,
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
+                'Content-Type': "application/x-www-form-urlencoded"
+            },   
         });
 
         const result = await res.json();
@@ -53,6 +55,25 @@ export const loginWithEmailAndPassword = async (email, password) => {
    } catch(error){
        console.log(error);
    }
+}
+
+export const fetchSchedule = async (date) => {
+    const uri = `${BASE_URL}/ta/tch/daily_schedule`;
+    try {
+        const res = await fetch(uri, {
+            method: 'post',
+            body: `scheduleDt=${date}`,
+            headers: {
+                'Content-Type': "application/x-www-form-urlencoded"  
+            }
+        })
+
+        const result = await res.json();
+        return result;
+
+    } catch(error){
+        console.log(error);
+    }
 }
 
 
@@ -75,13 +96,13 @@ export const inform = async (date, studentId, attendance) => {
 }
 
 export const resetPassword = async (email) => {
-    const uri = `${BASE_URL}/ta/staff/forgotPassword`
+    const uri = `${AUTH_URL}/sms/school/forgotpassword`
     try {
          const res = await fetch(uri, {
              method: "POST",
-             body: `eMail=${email}`,
+             body: `email=${email}`,
              headers: {
-                 'Content-Type': 'application/x-www-form-urlencoded'
+                 'Content-Type': "application/x-www-form-urlencoded"
              }
          });
  

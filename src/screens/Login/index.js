@@ -1,23 +1,29 @@
-import React, {useState } from 'react'
+import React, {useRef, useState } from 'react'
 import { LOGO } from '../../assets';
 import { AppLoading, Login } from '../../components';
 import { actions, colors, screens } from '../../constants';
 import { Body, Button, Container, Logo, LogoContainer, MainButton, Text } from './styles'
 import api from '../../api'
 import { useDispatch } from 'react-redux';
+import DropdownAlert from 'react-native-dropdownalert';
 const LoginScreen = () => {
     const [showingForgotPassword , setShowingForgotPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const dispatch = useDispatch();
+    const dropdownRef = useRef(null);
 
     const login = async () => {
         try {
             setLoading(true);
+               dispatch({type: actions.LOGIN, payload: {user: {username: 'bob'}}})
             // const res = await api.loginWithEmailAndPassword(email, password);
-            // alert(JSON.stringify(res));
-            dispatch({type: actions.LOGIN, payload: {user: {username: 'bob'}}})
+            // if(res.SvcStatus == 'Failure'){
+            //     dropdownRef.current.alertWithType("error", '', res.SvcMsg);
+            // } else if (res.svcStatus == 'Success') {
+            //     dispatch({type: actions.LOGIN, payload: {user: {username: 'bob'}}})
+            // }
         } catch(error){
             console.log(error);
         } finally {
@@ -29,7 +35,7 @@ const LoginScreen = () => {
         try {
             setLoading(true);
             const res = await api.resetPassword(email);
-            alert(JSON.stringify(res));
+            dropdownRef.current.alertWithType(res.SvcStatus == 'Failure' ? "error" : 'success', '', res.SvcMsg)
         } catch(error){
             console.log(error);
         } finally {
@@ -42,35 +48,40 @@ const LoginScreen = () => {
         return !prev;
     })
     
-    return loading ? <AppLoading /> : (
-        <Container>
-            <LogoContainer>
-                <Logo source={LOGO} />
-            </LogoContainer>
-            <Body>
-               {!showingForgotPassword ? (
-                    <>
-                    <Login.Input placeholder="Email" onChangeText={text => setEmail(text)} />
-                    <Login.Input placeholder="Password" secureTextEntry onChangeText={text => setPassword(text)} />
-                    <Button onPress={toggleForgotPassword}>
-                        <Text color={colors.primary}>Forgot Passowrd</Text>
-                    </Button>
-                    <MainButton onPress={login}>
-                        <Text color={colors.white}>Login</Text>
-                    </MainButton>
-                    </>
-               ) : (
-                   <>
-                    <Login.Input placeholder="Email" onChangeText={text => setEmail(text)} />
-                    <MainButton onPress={forgotPassword}>
-                        <Text color={colors.white}>Reset Password</Text>
-                    </MainButton>
-                    <Button center onPress={toggleForgotPassword}>
-                        <Text color={colors.primary}>Cancel</Text>
-                    </Button>
-                   </>
-               )}
-            </Body>
+    return (
+     <Container>
+           {loading ? <AppLoading /> : (
+                <>
+                <LogoContainer>
+                    <Logo source={LOGO} />
+                </LogoContainer>
+                <Body>
+                   {!showingForgotPassword ? (
+                        <>
+                        <Login.Input placeholder="Email" onChangeText={text => setEmail(text)} />
+                        <Login.Input placeholder="Password" secureTextEntry onChangeText={text => setPassword(text)} />
+                        <Button onPress={toggleForgotPassword}>
+                            <Text color={colors.primary}>Forgot Passowrd</Text>
+                        </Button>
+                        <MainButton onPress={login}>
+                            <Text color={colors.white}>Login</Text>
+                        </MainButton>
+                        </>
+                   ) : (
+                       <>
+                        <Login.Input placeholder="Email" onChangeText={text => setEmail(text)} />
+                        <MainButton onPress={forgotPassword}>
+                            <Text color={colors.white}>Reset Password</Text>
+                        </MainButton>
+                        <Button center onPress={toggleForgotPassword}>
+                            <Text color={colors.primary}>Cancel</Text>
+                        </Button>
+                       </>
+                   )}
+                </Body>
+                </>
+           )}
+            <DropdownAlert ref={dropdownRef} />
         </Container>
     )
 }
