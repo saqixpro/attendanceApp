@@ -17,13 +17,13 @@ const LoginScreen = () => {
     const login = async () => {
         try {
             setLoading(true);
-               dispatch({type: actions.LOGIN, payload: {user: {username: 'bob'}}})
-            // const res = await api.loginWithEmailAndPassword(email, password);
-            // if(res.SvcStatus == 'Failure'){
-            //     dropdownRef.current.alertWithType("error", '', res.SvcMsg);
-            // } else if (res.svcStatus == 'Success') {
-            //     dispatch({type: actions.LOGIN, payload: {user: {username: 'bob'}}})
-            // }
+            const result = await api.loginWithEmailAndPassword(email, password);
+            if(result.SvcStatus == 'Failure'){
+                dropdownRef.current.alertWithType("error", '', result.SvcMsg);
+            } else if (result.SvcStatus == 'Success') {
+                console.log(result.tokenId);
+                dispatch({type: actions.LOGIN, payload: {user: result}})
+            }
         } catch(error){
             console.log(error);
         } finally {
@@ -59,7 +59,7 @@ const LoginScreen = () => {
                    {!showingForgotPassword ? (
                         <>
                         <Login.Input placeholder="Email" onChangeText={text => setEmail(text)} />
-                        <Login.Input placeholder="Password" secureTextEntry onChangeText={text => setPassword(text)} />
+                        <Login.Input placeholder="Password" password onChangeText={text => setPassword(text)} />
                         <Button onPress={toggleForgotPassword}>
                             <Text color={colors.primary}>Forgot Passowrd</Text>
                         </Button>

@@ -9,12 +9,12 @@ export const Container = styled.View`
 ` 
 
 export const TimeContainer = styled.View`
-    flex: 2.7;
+    flex: 2.5;
     justify-content: center;
 `
 
 export const ClassContainer = styled.View`
-    flex: 1;
+    flex: 2;
 `
 
 export const StatsContainer = styled.View`

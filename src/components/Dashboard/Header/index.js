@@ -4,11 +4,14 @@ import CalendarPicker from 'react-native-calendar-picker'
 import moment from 'moment';
 import { Modal } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-const Header = ({sections, students, selectedClass, setSelectedClass, selectedDate, setSelectedDate}) => {   
+import { useSelector } from 'react-redux';
+import { getAttendance } from '../../../constants/selectors';
+const Header = ({sections, selectedClass, setSelectedClass, selectedDate, setSelectedDate}) => {   
     const [dateModalVisible, setDateModalVisible] = useState(false);
     const [classModalVisible, setClassModalVisible] = useState(false);
     const [isToday, setIsToday] = useState(false);
     const [formattedDate, setFormattedDate] = useState();
+    const attendance = useSelector(getAttendance);
 
     useEffect(() => {
         if(!selectedDate){
@@ -50,19 +53,19 @@ const Header = ({sections, students, selectedClass, setSelectedClass, selectedDa
             </LeftSection>
             <RightSection>
                 <StatsContainer>
-                    <TotalAttendance>{students?.total || 0}</TotalAttendance>
+                    <TotalAttendance>{attendance?.total || 0}</TotalAttendance>
                     <AttendanceContainer>
                         <AttendanceBlock>
                             <Text>P</Text>
-                            <Text>{students?.present || 0}</Text>
+                            <Text>{attendance?.present || 0}</Text>
                         </AttendanceBlock>
                         <AttendanceBlock>
                             <Text>A</Text>
-                            <Text>{students?.absent || 0}</Text>
+                            <Text>{attendance?.absent || 0}</Text>
                         </AttendanceBlock>
                         <AttendanceBlock>
                             <Text>L</Text>
-                            <Text>{students?.leave || 0}</Text>
+                            <Text>{attendance?.leave || 0}</Text>
                         </AttendanceBlock>
                     </AttendanceContainer>
                 </StatsContainer>

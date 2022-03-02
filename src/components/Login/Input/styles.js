@@ -11,8 +11,18 @@ export const Container = styled.View`
     border-radius: 5px;
     margin-top: 5%;
     margin-bottom: 5%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 3%;
+    padding-right: 3%;
 `
 
 export const TextInput = styled.TextInput`
     font-size: ${Platform.OS == 'ios' ? 16 : 14}px;
+    width: 90%;
+`
+
+export const EyeBtn = styled(TouchableOpacity)`
+    background-color: transparent;
 `

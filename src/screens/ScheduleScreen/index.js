@@ -1,49 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { FlatList, SafeAreaView, View, Modal} from 'react-native'
 import DropdownAlert from 'react-native-dropdownalert';
+import { useSelector } from 'react-redux';
 import api from '../../api';
 import { AppLoading, Schedule} from '../../components';
 import { height } from '../../constants';
+import { getCurrentUser } from '../../constants/selectors';
 import { Container, Separator,CalendarContainer, BtnText as Text, ModalContainer, ListButton } from './styles';
-const dummyData = [
-    {
-        id: 1,
-        time: "12:45AM",
-        section: "IX-A",
-        subject: 'science',
-        status: 10,
-        sub: "Harry"
-    },
-    {
-        id: 2,
-        time: "12:45AM",
-        section: "IX-A",
-        subject: 'science',
-        status: 20,
-        sub: "Lyla"
-    },
-    {
-        id: 3,
-        time: "12:45AM",
-        section: "IX-A",
-        subject: 'science',
-        status: 30,
-        sub: "Hashim"
-    },
-    {
-        id: 3,
-        time: "12:45AM",
-        lunch: true
-    },
-    {
-        id: 4,
-        time: "12:45AM",
-        section: "IX-A",
-        subject: 'science',
-        status: 40,
-        sub: "Harry"
-    },
-]
 
 const DashboardScreen = () => {
     const dropdownRef = useRef(null);
@@ -51,20 +14,27 @@ const DashboardScreen = () => {
     const [selectedDate, setSelectedDate] = useState();
     const [selectorVisible, setSelectorVisible] = useState(false);
     const [currentValue, setCurrentValue] = useState(null);
-    const [data, setData] = useState(dummyData);
+    const [data, setData] = useState([]);
+    const currentUser = useSelector(getCurrentUser);
 
-    const onSelectOption = (option) => {
-        setSelectorVisible(prev => {
-            // handle option here
-              const _data = data.map(_item => _item.id == currentValue ? ({..._item, status: option}) : _item);
-              setData(_data);
-            return false;
-        })
+    const onSelectOption = async (option) => {
+
+        const result = await api.updateSchedule(currentValue.sectionId, selectedDate, currentValue.periodId, option, currentUser.tokenId);
+        if(result.SvcStatus == 'Success') {
+            setSelectorVisible(prev => {
+                const _data = data.map(_item => _item.periodId == currentValue.periodId && _item.sectionId == currentValue.sectionId  ? ({..._item, status: option}) : _item);
+                setData(_data);
+              return false;
+          })
+        } else {
+            dropdownRef.current.alertWithType('error', '', result.SvcMsg);
+        }
+        
     }
 
     const fetchDailySchedule = async () => {
-        const result = await api.fetchSchedule(selectedDate);
-        console.log(result);
+        const result = await api.fetchSchedule(selectedDate, currentUser.tokenId);
+        if(result.SvcStatus == 'Success') setData(result.lstSchedule);
     }
 
     useEffect(() => {
@@ -79,7 +49,7 @@ const DashboardScreen = () => {
                   <Text style={{fontSize: 18}}>No Data Available</Text>
               </View>} ItemSeparatorComponent={() => <Separator />} renderItem={({item, index}) => (
                   <Schedule.ListItem onPress={() => setSelectorVisible(() => {
-                      setCurrentValue(item.id);
+                      setCurrentValue(item);
                       return true;
                   })} item={item} />
               )}>

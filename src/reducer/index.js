@@ -17,6 +17,8 @@ const reducer = (state = initialState, action) => {
             return {...state, loggedIn: true, currentUser: action.payload.user}
         case actions.LOGOUT:
             return {...state, loggedIn: false, currentUser: null}
+        case actions.UPDATE_ATTENDANCE:
+            return {...state, attendance: action.payload.attendance}
         default:
             return state;
     }

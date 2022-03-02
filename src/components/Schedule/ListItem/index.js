@@ -13,18 +13,18 @@ const ListItem = ({item, updateStatus, onPress}) => {
     return (
         <Container>
             <TimeContainer>
-               <Text>{item.time}</Text>
+               <Text>{item.startTm}</Text>
             </TimeContainer>
             {!item.lunch ? (
                 <>
                     <ClassContainer>
-                     <Text fontSize={14} margined center>{item.section}</Text>
+                     <Text fontSize={14} margined center>{item.clsSection}</Text>
                      <Text fontSize={12} margined center>{item.subject}</Text>
                     </ClassContainer>
                     <StatsContainer>
                       <Sub>
-                        {item.sub !== "Harry" && (
-                        <Text fontSize={12} center>Subs for {item.sub}</Text>
+                        {item.subsForStaff !== "" && (
+                        <Text fontSize={12} center>Subs for {item.subsForStaff}</Text>
                          )}
                      </Sub>
                      <Stat>

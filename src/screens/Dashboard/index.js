@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { FlatList, SafeAreaView, Text, View} from 'react-native'
 import DropdownAlert from 'react-native-dropdownalert';
+import { useDispatch, useSelector } from 'react-redux';
 import api from '../../api';
 import { AppLoading, Dashboard } from '../../components';
-import { height } from '../../constants';
+import { actions, height } from '../../constants';
+import { getAttendance, getCurrentUser } from '../../constants/selectors';
 import { Container, Separator } from './styles';
 const DashboardScreen = () => {
     const dropdownRef = useRef(null);
@@ -13,6 +15,9 @@ const DashboardScreen = () => {
     const [selectedSection, setSelectedSection] = useState();
     const [selectedDate, setSelectedDate] = useState();
     const [refreshing, setRefreshing] = useState(false);
+    const currentUser = useSelector(getCurrentUser);
+    const dispatch = useDispatch();
+    const [attendanceUpdates, setAttendanceUpdates] = useState(false);
 
 
     const updateStatus = (id, status) => {
@@ -31,7 +36,7 @@ const DashboardScreen = () => {
     const inform = async (studentId, attendance) => {
        try {
            setRefreshing(true);
-           const result = await api.inform(selectedDate, studentId, attendance);
+           const result = await api.inform(selectedDate, studentId, attendance, currentUser.tokenId);
            dropdownRef.current.alertWithType(result.SvcStatus == 'Success' ? 'success' : 'error', '', result.SvcMsg);
        } catch(error){
            console.log(error);
@@ -41,12 +46,13 @@ const DashboardScreen = () => {
     }
 
     const MarkAttendance = async (studentId, attendance) => {
-        const result =  await api.markStudent(studentId, selectedDate, attendance);
+        const result =  await api.markStudent(studentId, selectedDate, attendance, currentUser.tokenId);
+        setAttendanceUpdates(!attendanceUpdates);
         dropdownRef.current.alertWithType('success', '', result.SvcMsg);
     }
 
     const saveAttendance = async () => {
-        const result = await api.saveAttendance(selectedDate, selectedSection.sectionId);
+        const result = await api.saveAttendance(selectedDate, selectedSection.sectionId, currentUser.tokenId);
         dropdownRef.current.alertWithType(result.SvcStatus == "Success" ? 'success' : 'error', '', result.SvcMsg);
     }
 
@@ -54,7 +60,7 @@ const DashboardScreen = () => {
 
         for(let i = 0; i < students.lstStudents.length; i++){
             const student = students.lstStudents[i];
-            const result = await api.markStudent(student.studentId, selectedDate, "P");
+            const result = await api.markStudent(student.studentId, selectedDate, "P", currentUser.tokenId);
         }
 
         setStudents(prev => {
@@ -65,7 +71,7 @@ const DashboardScreen = () => {
 
     const fetchSectionsAsync = async () => {
        try {
-        const data = await api.getSections();
+        const data = await api.getSections(currentUser.tokenId);
         if(data.SvcStatus !== 'Failure')  setSections(data.lstClsSection);
        } catch(error){
            console.log(error);
@@ -78,9 +84,10 @@ const DashboardScreen = () => {
         if(!selectedSection) return;
 
        try {
-        const data = await api.getStudents(selectedSection.sectionId, selectedDate);
+        const data = await api.getStudents(selectedSection.sectionId, selectedDate, currentUser.tokenId);
         setStudents(data.student);
-        console.log(data.student);
+        const attendance = {absent: data.student.absent, present: data.student.present, total: data.student.total, leave: data.student.leave};
+        dispatch({type: actions.UPDATE_ATTENDANCE, payload: {attendance}})
        } catch(error){
            console.log(error);
        } finally {
@@ -94,7 +101,7 @@ const DashboardScreen = () => {
 
     useEffect(() => {
         fetchStudentsAsync();
-    }, [selectedDate, selectedSection, loading])
+    }, [selectedDate, selectedSection, loading, attendanceUpdates])
 
     return loading ? <AppLoading /> : (
            <Container>

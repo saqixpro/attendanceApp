@@ -1,14 +1,14 @@
 const BASE_URL = "http://13.127.102.34:8082"
 const AUTH_URL = 'http://13.126.35.191:8180'
-
-export const getSections = async (sectionId, date) => {
+export const getSections = async (tokenId) => {
     try {
         const uri = `${BASE_URL}/ta/mst/cls_section/list`
         const res = await fetch(uri, {
             method: "POST",
             headers: {
-                Accept: 'application/json',
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                tokenId: tokenId
+
             }
         });
         const result = await res.json();
@@ -18,15 +18,15 @@ export const getSections = async (sectionId, date) => {
     }
 }
 
-export const markStudent = async (studentId, date, attendance) => {
+export const markStudent = async (studentId, date, attendance, tokenId) => {
     try {
         const uri = `${BASE_URL}/ta/attendance/mark/student`
         const res = await fetch(uri, {
             method: "POST",
             body: `dt=${date}&studentId=${studentId}&attendance=${attendance}`,
             headers: {
-                Accept: 'application/json',
-                "Content-Type": "application/x-www-form-urlencoded"
+                "Content-Type": "application/x-www-form-urlencoded",
+                tokenId: tokenId
             }
         });
         const result = await res.json();
@@ -38,33 +38,56 @@ export const markStudent = async (studentId, date, attendance) => {
 
 
 export const loginWithEmailAndPassword = async (email, password) => {
-    console.log(`email:${email} and password ${password}`);
+    const data = JSON.stringify({email, password});
    const uri = `${AUTH_URL}/sms/school/login`
    try {
         const res = await fetch(uri, {
             method: "post",
-            body: `email=${email}&password=${password}`,
+            body: `school=${data}`,
             headers: {
                 'Content-Type': "application/x-www-form-urlencoded"
             },   
         });
 
         const result = await res.json();
-        return result;
+        const tokenId = res.headers.get('tokenId');
+        return {...result, tokenId};
 
    } catch(error){
        console.log(error);
    }
 }
 
-export const fetchSchedule = async (date) => {
-    const uri = `${BASE_URL}/ta/tch/daily_schedule`;
+export const updateSchedule = async (sectionId, scheduleDt, periodId, status, tokenId) => {
+    const uri = `${BASE_URL}/ta/attendance/tch/daily_schedule/save`;
+    const schedule = JSON.stringify({sectionId, scheduleDt, periodId, status});
+    try {
+        const res = await fetch(uri, {
+            method: 'POST',
+            body: `schedule=${schedule}`,
+            headers: {
+                'Content-Type': "application/x-www-form-urlencoded",
+                tokenId: tokenId  
+            }
+        })
+
+        const result = res.json();
+        return result;
+
+    } catch(error){
+        console.log(error);
+    }
+}
+
+export const fetchSchedule = async (date, tokenId) => {
+    const uri = `${BASE_URL}/ta/attendance/tch/daily_schedule`;
     try {
         const res = await fetch(uri, {
             method: 'post',
             body: `scheduleDt=${date}`,
             headers: {
-                'Content-Type': "application/x-www-form-urlencoded"  
+                'Content-Type': "application/x-www-form-urlencoded",
+                tokenId: tokenId  
             }
         })
 
@@ -77,14 +100,15 @@ export const fetchSchedule = async (date) => {
 }
 
 
-export const inform = async (date, studentId, attendance) => {
+export const inform = async (date, studentId, attendance, tokenId) => {
     const uri = `${BASE_URL}/ta/attendance/student/inform`;
     try {
         const res = await fetch(uri, {
             method: 'POST',
             body: `dt=${date}&studentId=${studentId}&attendance=${attendance}`,
             headers: {
-                'Content-Type': "application/x-www-form-urlencoded"
+                'Content-Type': "application/x-www-form-urlencoded",
+                tokenId: tokenId
             }
         })
 
@@ -102,7 +126,7 @@ export const resetPassword = async (email) => {
              method: "POST",
              body: `email=${email}`,
              headers: {
-                 'Content-Type': "application/x-www-form-urlencoded"
+                 'Content-Type': "application/x-www-form-urlencoded",
              }
          });
  
@@ -114,7 +138,7 @@ export const resetPassword = async (email) => {
     }
 }
 
-export const saveAttendance = async (date, sectionId) => {
+export const saveAttendance = async (date, sectionId, tokenId) => {
     const uri = `${BASE_URL}/ta/attendance/mark/cls`;
 
     try {
@@ -122,7 +146,8 @@ export const saveAttendance = async (date, sectionId) => {
             method: 'POST',
             body: `dt=${date}&sectionId=${sectionId}`,
             headers: {
-                'Content-Type': "application/x-www-form-urlencoded"
+                'Content-Type': "application/x-www-form-urlencoded",
+                tokenId: tokenId
             }
         })
 
@@ -136,7 +161,7 @@ export const saveAttendance = async (date, sectionId) => {
 
 }
 
-export const getStudents = async (sectionId, date) => {
+export const getStudents = async (sectionId, date, tokenId) => {
     try {
         const uri = `${BASE_URL}/ta/attendance/student/list`
 
@@ -144,8 +169,9 @@ export const getStudents = async (sectionId, date) => {
             method: "POST",
             body: `sectionId=${sectionId}&dt=${date}`,
             headers: {
-                Accept: 'application/json',
-                "Content-Type": "application/x-www-form-urlencoded"
+                "Content-Type": "application/x-www-form-urlencoded",
+                tokenId: tokenId
+                
             }
         });
         const result = await res.json();
